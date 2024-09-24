@@ -38,9 +38,7 @@ def main():
 
     st.markdown(markdown_text)
     st.header("Authors:")
-    st.write("Baigabulov Adil")
     st.write("Bekenov Bekzhan")
-    st.write("Ospanov Akhmet")
     st.markdown("<p style='text-align: left'>\
                 Group 05-057-21-05 \
                 <br>The Department of Computer Science \
