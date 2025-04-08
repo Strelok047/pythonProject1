@@ -6,6 +6,14 @@ import zipfile
 import tempfile
 import os
 import matplotlib.pyplot as plt
+import ee
+
+# Авторизация Earth Engine (нужна при первом запуске)
+try:
+    ee.Initialize()
+except Exception:
+    ee.Authenticate()
+    ee.Initialize()
 
 def setup():
     st.set_page_config(layout="wide", page_title="Satellite imagery", page_icon='🛰️')
@@ -44,12 +52,16 @@ def main():
             if shapefile_path:
                 gdf = gpd.read_file(shapefile_path)
 
-                # Определим колонку с агроклиматическими зонами
-                st.sidebar.markdown("### Выберите поле для раскраски")
-                column_to_color = st.sidebar.selectbox("Поле:", gdf.columns)
+                if gdf.empty:
+                    st.error("Файл прочитан, но в нём нет данных.")
+                    return
 
-                # Отрисовка карты с цветами по категориям
-                fig, ax = plt.subplots(figsize=(6, 6))
+                # Выбор поля для раскраски
+                st.sidebar.markdown("### Выберите поле для раскраски")
+                column_to_color = st.sidebar.selectbox("Поле для окраски:", gdf.columns)
+
+                # Отображение matplotlib-графика
+                fig, ax = plt.subplots()
                 gdf.plot(ax=ax, column=column_to_color, legend=True)
                 plt.xticks(rotation=90, fontsize=7)
                 plt.yticks(fontsize=7)
@@ -60,14 +72,39 @@ def main():
                 buf.seek(0)
 
                 with row2_col1:
-                    st.image(buf, caption=f"Зоны по полю: {column_to_color}")
-            else:
-                st.error("Shapefile (.shp) not найден в архиве.")
+                    st.image(buf, caption=f"Зоны по: {column_to_color}")
 
-            if not gdf.empty:
+                # Преобразование в ee.FeatureCollection
                 roi = geemap.geopandas_to_ee(gdf)
-                Map.centerObject(roi, zoom=6)
-                Map.addLayer(roi, {}, "Shapefile Layer")
+
+                # Палитра и стили
+                unique_values = gdf[column_to_color].unique()
+                unique_values.sort()
+                palette = geemap.random_color_hex(len(unique_values))
+
+                style_dict = {}
+                for val, color in zip(unique_values, palette):
+                    style_dict[str(val)] = {
+                        "color": color,
+                        "fillColor": color,
+                        "width": 1,
+                        "fillOpacity": 0.7,
+                    }
+
+                styled_fc = geemap.style_by_attribute(roi, column=column_to_color, style_dict=style_dict)
+
+                # Добавление слоя с popup'ами
+                popup_fields = [col for col in gdf.columns if gdf[col].dtype == 'object' or gdf[col].dtype.name == 'category']
+                Map.addLayer(styled_fc, {}, "Styled Shapefile")
+                Map.add_ee_layer_control()
+                Map.addLayerControl()
+
+                Map.setCenter(*gdf.geometry.centroid.iloc[0].coords[0], zoom=6)
+
+                # Включение всплывающих подсказок
+                Map.add_child(geemap.ee_tile_popup(styled_fc, fields=popup_fields))
+            else:
+                st.error("Shapefile (.shp) не найден в архиве.")
 
     with row1_col1:
         Map.to_streamlit(height=600)
