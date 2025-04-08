@@ -27,7 +27,6 @@ def main():
     Map = geemap.Map()
     roi = None
 
-    # Загрузка архива с шейп-файлом
     uploaded_shp_file = st.sidebar.file_uploader("Загрузите архив с Shapefile (.zip)", type=["zip"])
 
     if uploaded_shp_file is not None:
@@ -45,24 +44,29 @@ def main():
             if shapefile_path:
                 gdf = gpd.read_file(shapefile_path)
 
-                # Отображение графика
-                fig, ax = plt.subplots()
-                gdf.plot(ax=ax)
+                # Определим колонку с агроклиматическими зонами
+                st.sidebar.markdown("### Выберите поле для раскраски")
+                column_to_color = st.sidebar.selectbox("Поле:", gdf.columns)
+
+                # Отрисовка карты с цветами по категориям
+                fig, ax = plt.subplots(figsize=(6, 6))
+                gdf.plot(ax=ax, column=column_to_color, legend=True)
                 plt.xticks(rotation=90, fontsize=7)
                 plt.yticks(fontsize=7)
+                plt.title("Агроклиматические зоны")
 
                 buf = BytesIO()
-                plt.savefig(buf, format='png')
+                plt.savefig(buf, format='png', bbox_inches='tight')
                 buf.seek(0)
 
                 with row2_col1:
-                    st.image(buf, caption='Geopandas Plot')
+                    st.image(buf, caption=f"Зоны по полю: {column_to_color}")
             else:
-                st.error("Shapefile (.shp) not found in the uploaded zip file.")
+                st.error("Shapefile (.shp) not найден в архиве.")
 
             if not gdf.empty:
                 roi = geemap.geopandas_to_ee(gdf)
-                Map.centerObject(roi, zoom=10)
+                Map.centerObject(roi, zoom=6)
                 Map.addLayer(roi, {}, "Shapefile Layer")
 
     with row1_col1:
