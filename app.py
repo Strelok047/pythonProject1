@@ -158,16 +158,6 @@ def main():
     setup()
     Navbar()
 
-    # Инициализация GEE
-    token_json_str = st.secrets["EARTHENGINE_TOKEN"]
-    token_dict = json.loads(token_json_str)
-    credentials = ee.OAuthCredentials(
-        client_id=token_dict["client_id"],
-        client_secret=token_dict["client_secret"],
-        refresh_token=token_dict["refresh_token"]
-    )
-    ee.Initialize(credentials)
-
     row0_col1, row0_col2, row0_col3, row0_col4, row0_col5 = st.columns([1, 1, 1, 1, 1])
     row1_col1, row1_col2 = st.columns([5, 1])
     row2_col1, row2_col2, row2_col3 = st.columns([1, 1, 1])
