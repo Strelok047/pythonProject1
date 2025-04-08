@@ -8,12 +8,6 @@ import zipfile
 import tempfile
 import os
 
-# Получаем токен из секретов Streamlit
-earthengine_token = os.getenv("EARTHENGINE_TOKEN")
-
-# Инициализация Earth Engine с токеном
-ee.Initialize(credentials=earthengine_token)
-
 def setup():
     st.set_page_config(layout="wide", page_title="Satellite imagery", page_icon='🛰️')
     st.header("🛰️Satellite Imagery")
