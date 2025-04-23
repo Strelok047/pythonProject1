@@ -30,7 +30,6 @@ def main():
     st.title("🌡️ Тепловая карта по районам и годам")
 
     row1_col1, row1_col2 = st.columns([5, 1])
-    row2_col1, row2_col2  = st.columns([1, 1])
 
     # Загружаем данные
     df_all = load_all_excel_data()
