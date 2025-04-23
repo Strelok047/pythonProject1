@@ -5,3 +5,5 @@ geopandas
 matplotlib
 pandas
 setuptools
+leafmap
+streamlit_folium
