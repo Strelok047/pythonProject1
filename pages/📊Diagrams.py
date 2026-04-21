@@ -33,21 +33,21 @@ def main():
     with row1_col2:
         # Выбор года
         all_years = sorted(df_all['year'].dropna().unique())
-        selected_years_heatmap = st.multiselect("Выберите один или несколько лет", all_years, default=all_years)
+        selected_years_heatmap = st.multiselect("Выберите один или несколько лет", all_years, )#default=all_years
 
         # Фильтрация данных по выбранным годам
         filtered_by_year = df_all[df_all['year'].isin(selected_years_heatmap)]
 
         # Выбор областей в зависимости от выбранных лет
         all_oblasts = sorted(filtered_by_year['oblast'].dropna().unique())
-        selected_region_heatmap = st.multiselect("Выберите один или несколько областей", all_oblasts, default=all_oblasts)
+        selected_region_heatmap = st.multiselect("Выберите один или несколько областей", all_oblasts, )#default=all_oblasts
 
         # Фильтрация данных по выбранным областям
         filtered_by_region = filtered_by_year[filtered_by_year['oblast'].isin(selected_region_heatmap)]
 
         # Выбор районов в зависимости от выбранных областей
         all_district = sorted(filtered_by_region['district'].dropna().unique())
-        selected_district_heatmap = st.multiselect("Выберите один или несколько районов", all_district, default=all_district)
+        selected_district_heatmap = st.multiselect("Выберите один или несколько районов", all_district, )#default=all_district
 
         # Фильтрация по выбранным параметрам
         filtered_data = filtered_by_region[
@@ -77,13 +77,24 @@ def main():
 
             # Визуализация графика с точками и связующими линиями
             fig, ax = plt.subplots(figsize=(8, 6))  # Размер графика
-            for year in selected_years_diagram:
-                df_year = filtered_data[filtered_data["year"] == year]
-                ax.plot(df_year["year"], marker='o', label=f"Год {year}",
-                        linestyle='-', linewidth=2)
+            for district in selected_district_heatmap:
+                df_district = filtered_data[filtered_data["district"] == district]
+                df_district = df_district.sort_values("year")
 
-            ax.set_ylabel("Год")
-            ax.set_xlabel("Значение показателя")
+                ax.plot(
+                    df_district["year"],
+                    df_district[selected_indicator_diagram],
+                    marker='o',
+                    linestyle='-',
+                    linewidth=2,
+                    label=district
+                )
+
+            ax.set_xlabel("Год")
+            ax.set_ylabel("Значение показателя")
+            ax.set_title(f"{selected_indicator_diagram} по годам")
+            ax.grid(True)
+            ax.legend(title="Районы", loc='upper left', bbox_to_anchor=(1.05, 1))
             ax.set_title(f"{selected_indicator_diagram} по годам")
             ax.grid(True)
             ax.legend(title="Годы", loc='upper left', bbox_to_anchor=(1.05, 1))
