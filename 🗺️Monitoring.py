@@ -24,7 +24,17 @@ def main():
     row1_col1, row1_col2 = st.columns([5, 1])
     row2_col1, row2_col2  = st.columns([1, 1])
 
-    Map = geemap.Map()
+    Map = geemap.Map(
+        add_google_map=False
+    )
+
+    # HYBRID как дополнительный слой (выключен)
+    Map.add_tile_layer(
+        "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+        name="Hybrid",
+        attribution="Google",
+        shown=False
+    )
 
     # Центрируем карту на Астане (Нур-Султан)
     Map.setCenter(71.4491, 51.1694, zoom=6)  # Координаты Астаны
