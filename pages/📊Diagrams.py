@@ -33,21 +33,21 @@ def main():
     with row1_col2:
         # Выбор года
         all_years = sorted(df_all['year'].dropna().unique())
-        selected_years_heatmap = st.multiselect("Выберите один или несколько лет", all_years, )#default=all_years
+        selected_years_heatmap = st.multiselect("Выберите один или несколько лет", all_years, default=all_years)#
 
         # Фильтрация данных по выбранным годам
         filtered_by_year = df_all[df_all['year'].isin(selected_years_heatmap)]
 
         # Выбор областей в зависимости от выбранных лет
         all_oblasts = sorted(filtered_by_year['oblast'].dropna().unique())
-        selected_region_heatmap = st.multiselect("Выберите один или несколько областей", all_oblasts, )#default=all_oblasts
+        selected_region_heatmap = st.multiselect("Выберите один или несколько областей", all_oblasts, default=all_oblasts)#
 
         # Фильтрация данных по выбранным областям
         filtered_by_region = filtered_by_year[filtered_by_year['oblast'].isin(selected_region_heatmap)]
 
         # Выбор районов в зависимости от выбранных областей
         all_district = sorted(filtered_by_region['district'].dropna().unique())
-        selected_district_heatmap = st.multiselect("Выберите один или несколько районов", all_district, )#default=all_district
+        selected_district_heatmap = st.multiselect("Выберите один или несколько районов", all_district, default=all_district)#
 
         # Фильтрация по выбранным параметрам
         filtered_data = filtered_by_region[
